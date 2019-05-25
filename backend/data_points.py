@@ -37,7 +37,7 @@ Data_points = []
 Data_points_len = len(times)
 idx = 0
 while idx != Data_points_len:
-    Data_points.append({"time": times[idx],"value": values[idx]})
+    Data_points.append({"time": times[idx],"value": float(values[idx])})
     idx = idx + 1
 
 #### To access data points
