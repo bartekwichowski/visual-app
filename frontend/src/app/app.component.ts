@@ -3,6 +3,7 @@ import * as Highcharts from 'highcharts';
 import { DataPoint } from './model/dataPoint';
 import { DataService } from './service/dataService';
 
+
 declare var require: any;
 let Boost = require('highcharts/modules/boost');
 let noData = require('highcharts/modules/no-data-to-display');
@@ -20,20 +21,29 @@ noData(Highcharts);
 })
 export class AppComponent implements OnInit {
 
+  Highcharts = Highcharts;
+
   constructor(private dataService: DataService) { }
+
+  getInstance(chart): void {
+    this.chart = chart;
+ }
 
   private data: number[][];
 
+  private chart;
+
   ngOnInit(){
     this.loadData();
-    Highcharts.chart('container', this.options);
   }
 
   loadData() {
     this.dataService.getData().subscribe(
       (dataPoints: DataPoint[]) => {
         this.data = this.converter(dataPoints);
-        this.options.series[0]['data'] = this.data;
+        this.chart.series[0].update({
+          data: this.data
+        }, true); 
       })
   }
 
@@ -41,31 +51,28 @@ export class AppComponent implements OnInit {
     var values = [];
     for (var i = 0; i < dataPoints.length; i++) {
       var item = [];
-      item.push(dataPoints[i].value);
-      item.push(dataPoints[i].time.getTime());
+
+      item.push(new Date(dataPoints[i]['time']).getTime());
+      item.push(dataPoints[i]['value']);
       values.push(item);
     } 
     return values;
   }
 
-  public options: any = {
-    chart: {
-      type: 'scatter',
-      height: 700
-    },
+  public chartOptions: any = {
     title: {
-      text: 'Sample Price Chart'
+      text: 'Stock prices'
     },
     credits: {
       enabled: false
     },
     tooltip: {
       formatter: function() {
-        return 'x: ' + Highcharts.dateFormat('%e %b %y %H:%M:%S', this.x) + ' y: ' + this.y.toFixed(2);
+        return 'x: ' + Highcharts.dateFormat('%e %b %y %H:%M:%S', this.x) + ' y: ' + this.y;
       }
     },
     xAxis: {
-      type: 'datetime',
+      type: 'string',
       labels: {
         formatter: function() {
           return Highcharts.dateFormat('%e %b %y', this.value);
@@ -75,7 +82,7 @@ export class AppComponent implements OnInit {
     series: [
       {
         name: 'Prices',
-        turboThreshold: 500000
+        data: []
       }
     ]
   }
