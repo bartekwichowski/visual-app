@@ -27,7 +27,7 @@ def _request(symbol, interval):
     return data
 
 def get_stock_prices_by_symbol(symbol, interval):
-    c = json.loads(_request(symbol, interval))
+    c = json.loads(_request(symbol, interval))['Time Series ('+ interval +'min)']
     json.dumps(c)
 
     ## 1. open values
